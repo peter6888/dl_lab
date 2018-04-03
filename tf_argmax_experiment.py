@@ -1,6 +1,29 @@
 import tensorflow as tf
 import numpy as np
 
+def np_argmax():
+    '''
+    Experiment on np.argmax string use .astype(np.int32)
+    Returns:None
+    '''
+    labels = np.array(['0', '1', '0'])
+    labels = labels.astype(np.int32)
+    pred = np.array([[0.179,0.0],[0.752,0.0],[0.515,0.0]])
+    count = np.sum(labels==np.argmax(pred, axis=1))
+    print("accuraccy {}/{}={}".format(count, len(labels), count/len(labels)))
+
+def np_argmax_string():
+    '''
+    Experiment on np.argmax string, which the label is actually a string
+    Returns: None
+    '''
+    labels = np.array(['0', '1', '0'])
+    pred = np.array([[0.179,0.0],[0.752,0.0],[0.515,0.0]])
+    indices = np.argmax(pred, axis=1)
+    indices_str = [str(_) for _ in indices]
+    count = np.sum(labels==indices_str)
+    print("accuraccy {}/{}={}".format(count, len(labels), count/len(labels)))
+
 def tf_argmax():
     '''
     Experiment on tf.argmax
@@ -61,3 +84,5 @@ count-----
 
 if __name__ == "__main__":
     tf_argmax()
+    np_argmax_string()
+    np_argmax()

@@ -26,7 +26,8 @@ if __name__ == "__main__":
 
     # Load model and use it
     with tf.Session() as predict_sess:
-        #if os.path.exists(saved_model_path):
+        if not tf.train.checkpoint_exists(saved_model_path):
+            print("Not found checkpoint at {}. Exit".format(saved_model_path))
         saver.restore(predict_sess, saved_model_path)
         print("Model restored.")
         val_a, val_b, val_y = zip(*val_data)

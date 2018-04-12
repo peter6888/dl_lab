@@ -37,6 +37,7 @@ if __name__ == "__main__":
 
     with tf.Session() as sess:
         sess.run(tf.global_variables_initializer())
+        summary_writer = tf.summary.FileWriter("logdir", sess.graph)
         for i in range(10000):
             np.random.shuffle(train_data)
             a, b, c = zip(* train_data)
@@ -46,6 +47,11 @@ if __name__ == "__main__":
             #print(_pred)
             if i%1000 == 0:
                 print("Cross-Entropy loss:{}".format(_loss))
+                loss_sum = tf.Summary()
+                tag_name = "Cross-Entropy loss"
+                loss_sum.value.add(tag=tag_name, simple_value=_loss)
+                summary_writer.add_summary(loss_sum,i)
+                summary_writer.flush()
                 if i > 5000:
                     # save best model
                     if best_loss > _loss:

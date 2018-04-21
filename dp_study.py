@@ -35,6 +35,34 @@ def q2_zigzag(a):
                 ans[i] = ans[j] + 1
     return ans[-1]
 
+def q3_badneighbors(donations):
+    '''
+    Find max donations.
+    Solution idea: First solve this problem without circle, it's a normal dynamic-problem.
+        Then, consider the neighors at begining and end, it can fixed by zero out the smaller one.
+    Args:
+        donations: list(int)
+
+    Returns:max donation
+    '''
+    n = len(donations)
+    if n <= 2:
+        return max(donations)
+
+    # zero out one smaller neighbors at begining or end to avoid circle issue
+    if donations[0] > donations[-1]:
+        donations[-1] = 0
+    else:
+        donations[0] = 0
+
+    ans = list(donations)
+    ans[1] = max(donations[:2])
+
+    for i in range(2, n):
+        ans[i] = max(ans[i-1], donations[i]+ans[i-2])
+
+    return ans[-1]
+
 if __name__ == "__main__":
     print("q1 coins default input:{}".format(q1_coins()))
     print("q1 coints 20 with coins [1,5,7], output:{}".format(q1_coins(20, [1,5,7])))
@@ -51,4 +79,18 @@ if __name__ == "__main__":
 249, 22, 176, 279, 23, 22, 617, 462, 459, 244]]
     for q2_t in q2_ts:
         print("q2 {} output {}".format(q2_t, q2_zigzag(q2_t)))
+
+    q3_ts = [[ 10, 3, 2, 5, 7, 8], \
+             [11, 15], \
+             [15, 11], \
+             [15, 11, 12], \
+             [ 7, 7, 7, 7, 7, 7, 7 ], \
+              [1, 2, 3, 4, 5, 1, 2, 3, 4, 5], \
+             [94, 40, 49, 65, 21, 21, 106, 80, 92, 81, 679, 4, 61,
+  6, 237, 12, 72, 74, 29, 95, 265, 35, 47, 1, 61, 397,
+  52, 72, 37, 51, 1, 81, 45, 435, 7, 36, 57, 86, 81, 72]
+        ]
+
+    for q3_t in q3_ts:
+        print("q3 {} output {}".format(q3_t, q3_badneighbors(q3_t)))
 

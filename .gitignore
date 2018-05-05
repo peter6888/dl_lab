@@ -2,3 +2,10 @@
 __pycache__
 .idea
 logdir/
+
+*.mat
+
+.ipynb_checkpoints/Linear_Lease_Car_Mileage-checkpoint.ipynb
+
+
+graphs/*

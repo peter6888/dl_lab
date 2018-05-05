@@ -122,7 +122,7 @@ print(sess.run(out))
 print('1h------')
 x = tf.random_normal(shape=[300], mean=0.5, stddev=0.5)
 y = tf.random_normal(shape=[300], mean=0.5, stddev=0.5)
-out = tf.cond(tf.less(tf.reduce_mean(x-y), 0.0), \ 
+out = tf.cond(tf.less(tf.reduce_mean(x-y), 0.0), \
               lambda:tf.reduce_mean(tf.square(x-y)), \
               lambda:tf.reduce_sum(tf.abs(x-y)))
 print(sess.run(out))

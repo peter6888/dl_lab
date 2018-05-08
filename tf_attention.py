@@ -46,5 +46,34 @@ def tf_attention():
         _attentioned_result = sess.run(attentioned_result)
         print(_attentioned_result)
 
+def tf_embedding_attention():
+    '''
+    Experiment on the tf.contrib.legacy_seq2seq.embedding_attention_seq2seq() function
+    :return:
+    '''
+    batch_size = 3
+    max_total_time = 4
+    input_vector_size = 2
+    num_enc_symb = 3
+    num_dec_symb = 4
+    enc_inputs = tf.random_uniform(shape=(batch_size, max_total_time, input_vector_size), maxval=num_enc_symb, dtype=tf.int32)
+    enc_inputs = tf.transpose(enc_inputs, [1, 0, 2])
+    dec_inputs = tf.random_uniform(shape=(batch_size, max_total_time, input_vector_size), maxval=num_dec_symb, dtype=tf.int32)
+    dec_inputs = tf.transpose(dec_inputs, [1, 0, 2])
+
+    emb_size = 2
+    hidden_vector_size = 2
+    lstm_cell = tf.nn.rnn_cell.LSTMCell(hidden_vector_size)
+    outputs, states = tf.contrib.legacy_seq2seq.embedding_attention_seq2seq(encoder_inputs = enc_inputs, decoder_inputs = dec_inputs, \
+                                                                           cell = lstm_cell, \
+                                                                           num_encoder_symbols = num_enc_symb, num_decoder_symbols = num_dec_symb, \
+                                                                           embedding_size = emb_size)
+    with tf.Session() as sess:
+        # with tf.variable_scope("encoders", initializer=tf.contrib.layers.xavier_initializer()):
+        sess.run(tf.global_variables_initializer())
+        _output, _states = sess.run([outputs, states])
+        print(_output, _states)
+
 if __name__ == "__main__":
-    tf_attention()
+    #tf_attention()
+    tf_embedding_attention()

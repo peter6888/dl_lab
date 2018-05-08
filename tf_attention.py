@@ -54,13 +54,9 @@ def tf_embedding_attention():
     batch_size = 5
     num_enc_symb = 3
     num_dec_symb = 4
-    enc_inputs = []
-    dec_inputs = []
-    for i in range(batch_size):
-        enc_input = tf.random_uniform(shape=[1], maxval=num_enc_symb, dtype=tf.int32)
-        enc_inputs.append(enc_input)
-        dec_input = tf.random_uniform(shape=[1], maxval=num_dec_symb, dtype=tf.int32)
-        dec_inputs.append(dec_input)
+
+    enc_inputs = [tf.random_uniform(shape=[1], maxval=num_enc_symb, dtype=tf.int32) for _ in range(batch_size)]
+    dec_inputs = [tf.random_uniform(shape=[1], maxval=num_dec_symb, dtype=tf.int32) for _ in range(batch_size)]
 
     emb_size = 2
     hidden_vector_size = 2
@@ -78,6 +74,13 @@ def tf_embedding_attention():
         print("tf_embedding_attention states.c and states.h")
         print(_states.c, _states.h)
         print("output[0].shape: {} and len(output: {}".format(_output[0].shape, len(_output)))
+
+'''--sample output----
+tf_embedding_attention states.c and states.h
+[[0.35108235 0.28284627]] [[0.122247   0.10008936]]
+output[0].shape: (1, 4) and len(output: 1
+'''
+
 
 def tf_static_rnn():
     '''

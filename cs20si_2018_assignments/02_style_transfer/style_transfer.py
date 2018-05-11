@@ -96,7 +96,7 @@ class StyleTransfer(object):
         ###############################
         ## TO DO
         #coefficient = 4.0 * tf.size(P) #tf.reduce_prod(tf.shape(P))
-        self.content_loss = tf.reduce_sum(tf.squared_difference(P, F)) / 4.0 * P.size
+        self.content_loss = tf.reduce_sum(tf.squared_difference(P, F)) / (4.0 * P.size)
         ###############################
         
     def _gram_matrix(self, F, N, M):
@@ -106,7 +106,7 @@ class StyleTransfer(object):
         ###############################
         ## TO DO
         _F = tf.reshape(F, shape=[M,N])
-        return tf.matmul(_F, tf.transpose(_F))
+        return tf.matmul(tf.transpose(_F), _F)
         ###############################
 
     def _single_style_loss(self, a, g):
@@ -199,6 +199,7 @@ class StyleTransfer(object):
             ###############################
             sess.run(tf.global_variables_initializer())
             writer = tf.summary.FileWriter("graphs/style_transfer", sess.graph)
+            print("sess.run starts")
             sess.run(self.input_img.assign(self.initial_img))
 
             ###############################
@@ -248,4 +249,5 @@ if __name__ == '__main__':
     setup()
     machine = StyleTransfer('content/deadpool.jpg', 'styles/guernica.jpg', 333, 250)
     machine.build()
+    print("machine.build() done")    
     machine.train(300)

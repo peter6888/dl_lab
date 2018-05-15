@@ -14,10 +14,20 @@ class ChatBotModel:
         self.batch_size = batch_size
 
     def _create_placeholders(self):
+        '''
+        Feeds for inputs. Each placeholder is a sequence of data.
+        '''
+        print('Create placeholders')
+        self.encoder_input = tf.placeholder(tf.int32, shape=[None], name='encoder')
+        self.decoder_input = tf.placeholder(tf.int32, shape=[None], name='decoder')
+        self.decoder_mask = tf.placeholder(tf.int32, shape=[None], name='mask')
+        self.target = self.decoder_input[1:]
+
+    def _create_placeholders_buckets(self):
         # Feeds for inputs. It's a list of placeholders
         # To-do: As new dynamics RNN can taking caring of dynamic lenth of inputs, change BUCKETS implementation to batch only
         # This need to change inputs (encoder, decoder and masks) from list of tf.placeholders to just tf.placeholders
-        print('Create placeholders')
+        print('Create placeholders with buckets')
         self.encoder_inputs = [tf.placeholder(tf.int32, shape=[None], name='encoder{}'.format(i))
                                for i in range(config.BUCKETS[-1][0])]
         self.decoder_inputs = [tf.placeholder(tf.int32, shape=[None], name='decoder{}'.format(i))
@@ -122,7 +132,7 @@ class ChatBotModel:
         pass
 
     def build_graph(self):
-        self._create_placeholders()
+        self._create_placeholders_buckets()
         self._inference()
         self._create_loss()
         self._creat_optimizer()

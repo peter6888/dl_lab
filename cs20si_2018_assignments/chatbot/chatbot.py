@@ -248,9 +248,25 @@ def chat():
         output_file.write('=============================================\n')
         output_file.close()
 
+def test_model_create_placeholders():
+    _model = ChatBotModel(True, batch_size=1)
+    _model._create_placeholders_buckets()
+    _model._create_placeholders()
+    with tf.Session() as sess:
+        sess.run(tf.global_variables_initializer())
+        _encoder_bucket = sess.run(_model.encoder_inputs[0], feed_dict={_model.encoder_inputs[0]:np.array([3])})
+        assert _encoder_bucket==[3], "bucket encoder placeholder broken"
+        _encoder = sess.run(_model.encoder_input, feed_dict={_model.encoder_input:np.array([4])})
+        assert _encoder==[4], "placehoder encoder verification failure"
+
+def test_get_batch_data():
+    _, train_data = _get_test_train_data()
+    encoder_inputs, decoder_inputs, decoder_masks = data.get_batch_normal(train_data)
+    print(len(encoder_inputs))
+
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--mode', choices={'train', 'chat', 'test1'},
+    parser.add_argument('--mode', choices={'train', 'chat', 'test1', 'test2', 'test3'},
                         default='train', help="mode. if not specified, it's in the train mode")
     args = parser.parse_args()
 
@@ -266,12 +282,17 @@ def main():
     elif args.mode == 'chat':
         chat()
     elif args.mode == 'test1':
-        print('Test Load Data')
+        print('Unit Test - Load Data')
         a, b ,c = _get_buckets()
         print(len(a), len(b), len(c))
         test_data, train_data = _get_test_train_data()
         print("Length of test and train data", len(test_data), len(train_data))
-
+    elif args.mode == 'test2':
+        print('Unit Test - Model Init and _create_placeholders')
+        test_model_create_placeholders()
+    elif args.mode == 'test3':
+        print('Unit Test - Get Batch Data')
+        test_get_batch_data()
 
 if __name__ == '__main__':
     main()

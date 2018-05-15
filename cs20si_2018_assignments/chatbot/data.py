@@ -251,10 +251,17 @@ def get_batch(data_bucket, bucket_id, batch_size=1):
     """ Return one batch to feed into the model """
     # only pad to the max length of the bucket
     encoder_size, decoder_size = config.BUCKETS[bucket_id]
+    return get_batch_common(data_bucket, encoder_size, decoder_size, batch_size)
+
+def get_batch_normal(data, batch_size=1):
+    encoder_size, decoder_size = config.DATA_SIZES
+    return get_batch_common(data, encoder_size, decoder_size, batch_size)
+
+def get_batch_common(data, encoder_size, decoder_size, batch_size=1):
     encoder_inputs, decoder_inputs = [], []
 
     for _ in range(batch_size):
-        encoder_input, decoder_input = random.choice(data_bucket)
+        encoder_input, decoder_input = random.choice(data)
         # pad both encoder and decoder, reverse the encoder
         encoder_inputs.append(list(reversed(_pad_input(encoder_input, encoder_size))))
         decoder_inputs.append(_pad_input(decoder_input, decoder_size))

@@ -33,7 +33,7 @@ EOS_ID = 3
 TESTSET_SIZE = 25000
 
 BUCKETS = [(19, 19), (28, 28), (33, 33), (40, 43), (50, 53), (60, 63)]
-
+DATA_SIZES = (60,63)
 
 CONTRACTIONS = [("i ' m ", "i 'm "), ("' d ", "'d "), ("' s ", "'s "), 
 				("don ' t ", "do n't "), ("didn ' t ", "did n't "), ("doesn ' t ", "does n't "),

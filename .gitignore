@@ -9,3 +9,5 @@ logdir/
 
 
 graphs/*
+
+*.local

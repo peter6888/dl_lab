@@ -15,6 +15,8 @@ class ChatBotModel:
 
     def _create_placeholders(self):
         # Feeds for inputs. It's a list of placeholders
+        # To-do: As new dynamics RNN can taking caring of dynamic lenth of inputs, change BUCKETS implementation to batch only
+        # This need to change inputs (encoder, decoder and masks) from list of tf.placeholders to just tf.placeholders
         print('Create placeholders')
         self.encoder_inputs = [tf.placeholder(tf.int32, shape=[None], name='encoder{}'.format(i))
                                for i in range(config.BUCKETS[-1][0])]
@@ -54,6 +56,7 @@ class ChatBotModel:
         def _seq2seq_f(encoder_inputs, decoder_inputs, do_decode):
             setattr(tf.contrib.rnn.GRUCell, '__deepcopy__', lambda self, _: self)
             setattr(tf.contrib.rnn.MultiRNNCell, '__deepcopy__', lambda self, _: self)
+            # To-do: should not use API from legacy_seq2seq anymore
             return tf.contrib.legacy_seq2seq.embedding_attention_seq2seq(
                     encoder_inputs, decoder_inputs, self.cell,
                     num_encoder_symbols=config.ENC_VOCAB,
@@ -63,6 +66,7 @@ class ChatBotModel:
                     feed_previous=do_decode)
 
         if self.fw_only:
+            # To-do: should not use API from legacy_seq2seq anymore, need replace model_with_buckets with dyanmic RNN API
             self.outputs, self.losses = tf.contrib.legacy_seq2seq.model_with_buckets(
                                         self.encoder_inputs, 
                                         self.decoder_inputs, 
@@ -73,11 +77,13 @@ class ChatBotModel:
                                         softmax_loss_function=self.softmax_loss_function)
             # If we use output projection, we need to project outputs for decoding.
             if self.output_projection:
+                # To-do: no bucket anymore
                 for bucket in range(len(config.BUCKETS)):
                     self.outputs[bucket] = [tf.matmul(output, 
                                             self.output_projection[0]) + self.output_projection[1]
                                             for output in self.outputs[bucket]]
         else:
+            # To-do: should not use API from legacy_seq2seq anymore, need replace model_with_buckets with dynamic RNN API
             self.outputs, self.losses = tf.contrib.legacy_seq2seq.model_with_buckets(
                                         self.encoder_inputs, 
                                         self.decoder_inputs, 
@@ -99,6 +105,7 @@ class ChatBotModel:
                 self.gradient_norms = []
                 self.train_ops = []
                 start = time.time()
+                # To-do: should not use bucket anymore
                 for bucket in range(len(config.BUCKETS)):
                     
                     clipped_grads, norm = tf.clip_by_global_norm(tf.gradients(self.losses[bucket], 

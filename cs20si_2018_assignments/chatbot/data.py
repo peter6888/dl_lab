@@ -194,7 +194,28 @@ def process_data():
     token2id('test', 'enc')
     token2id('test', 'dec')
 
-def load_data(enc_filename, dec_filename, max_training_size=None):
+def load_data(enc_filename, dec_filename):
+    """
+    load data from file without bucketing it
+    Args:
+        enc_filename: encoder data file
+        dec_filename: decoder data file
+    Returns:
+        list of [encode_ids, decode_ids], where *_ids are both sequence of ids
+    """
+    encode_file = open(os.path.join(config.PROCESSED_PATH, enc_filename), 'r')
+    decode_file = open(os.path.join(config.PROCESSED_PATH, dec_filename), 'r')
+    encode, decode = encode_file.readline(), decode_file.readline()
+    data = []
+    while encode and decode:
+        encode_ids = [int(id_) for id_ in encode.split()]
+        decode_ids = [int(id_) for id_ in decode.split()]
+        data.append([encode_ids, decode_ids])
+        encode, decode = encode_file.readline(), decode_file.readline()
+
+    return data
+
+def load_data_buckets(enc_filename, dec_filename, max_training_size=None):
     encode_file = open(os.path.join(config.PROCESSED_PATH, enc_filename), 'r')
     decode_file = open(os.path.join(config.PROCESSED_PATH, dec_filename), 'r')
     encode, decode = encode_file.readline(), decode_file.readline()

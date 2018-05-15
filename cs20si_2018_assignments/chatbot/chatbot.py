@@ -47,6 +47,7 @@ def _assert_lengths(encoder_size, decoder_size, encoder_inputs, decoder_inputs, 
         raise ValueError("Weights length must be equal to the one in bucket,"
                        " %d != %d." % (len(decoder_masks), decoder_size))
 
+# To-do: should not use bucket_id or bucket anymore
 def run_step(sess, model, encoder_inputs, decoder_inputs, decoder_masks, bucket_id, forward_only):
     """ Run one step in training.
     @forward_only: boolean value to decide whether a backward path should be created
@@ -82,13 +83,14 @@ def run_step(sess, model, encoder_inputs, decoder_inputs, decoder_masks, bucket_
     else:
         return None, outputs[0], outputs[1:]  # No gradient norm, loss, outputs.
 
+# To-do: replace this function w/o buckets handler. Can design a unit-test to run this function and replace it.
 def _get_buckets():
     """ Load the dataset into buckets based on their lengths.
     train_buckets_scale is the inverval that'll help us 
     choose a random bucket later on.
     """
-    test_buckets = data.load_data('test_ids.enc', 'test_ids.dec')
-    data_buckets = data.load_data('train_ids.enc', 'train_ids.dec')
+    test_buckets = data.load_data_buckets('test_ids.enc', 'test_ids.dec')
+    data_buckets = data.load_data_buckets('train_ids.enc', 'train_ids.dec')
     train_bucket_sizes = [len(data_buckets[b]) for b in range(len(config.BUCKETS))]
     print("Number of samples in each bucket:\n", train_bucket_sizes)
     train_total_size = sum(train_bucket_sizes)
@@ -97,6 +99,14 @@ def _get_buckets():
                            for i in range(len(train_bucket_sizes))]
     print("Bucket scale:\n", train_buckets_scale)
     return test_buckets, data_buckets, train_buckets_scale
+
+def _get_test_train_data():
+    """ Load the datasets
+    Returns:
+    """
+    test_data = data.load_data('test_ids.enc', 'test_ids.dec')
+    train_data = data.load_data('train_ids.enc', 'train_ids.dec')
+    return test_data, train_data
 
 def _get_skip_step(iteration):
     """ How many steps should the model train before it saves all the weights. """
@@ -129,6 +139,7 @@ def _eval_test_set(sess, model, test_buckets):
 
 def train():
     """ Train the bot """
+    # To-do: Don't need buckets anymore
     test_buckets, data_buckets, train_buckets_scale = _get_buckets()
     # in train mode, we need to create the backward path, so forwrad_only is False
     model = ChatBotModel(False, config.BATCH_SIZE)
@@ -239,7 +250,7 @@ def chat():
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--mode', choices={'train', 'chat'},
+    parser.add_argument('--mode', choices={'train', 'chat', 'test1'},
                         default='train', help="mode. if not specified, it's in the train mode")
     args = parser.parse_args()
 
@@ -254,6 +265,13 @@ def main():
         train()
     elif args.mode == 'chat':
         chat()
+    elif args.mode == 'test1':
+        print('Test Load Data')
+        a, b ,c = _get_buckets()
+        print(len(a), len(b), len(c))
+        test_data, train_data = _get_test_train_data()
+        print("Length of test and train data", len(test_data), len(train_data))
+
 
 if __name__ == '__main__':
     main()

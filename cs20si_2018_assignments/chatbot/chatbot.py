@@ -260,9 +260,14 @@ def test_model_create_placeholders():
         assert _encoder==[4], "placehoder encoder verification failure"
 
 def test_get_batch_data():
+    _, bucket_data, _ = _get_buckets()
+    encoder_inputs_bucket, decoder_inputs_bucket, decoder_masks_bucket = data.get_batch(bucket_data[1], 1, config.BATCH_SIZE)
     _, train_data = _get_test_train_data()
-    encoder_inputs, decoder_inputs, decoder_masks = data.get_batch_normal(train_data)
-    print(len(encoder_inputs))
+    encoder_inputs, decoder_inputs, decoder_masks = data.get_batch_normal(train_data, config.BATCH_SIZE)
+    print("Note that the encoder_inputs batch output have shape [encoder_size, batchsize], and encoder sequence been reversed")
+    print("\tthus the encoder_inputs[:,0] is one reversed input sequence.")
+    print("And decoder_inputs, mask_inputs are similar. Both has shape [decoder_size, batchsize].")
+    assert len(encoder_inputs_bucket[0]) == len(encoder_inputs[0]), "bucket batch size {} should matches normal batch size {}".format(len(encoder_inputs_bucket[0]), len(encoder_inputs[0]))
 
 def main():
     parser = argparse.ArgumentParser()
@@ -284,7 +289,7 @@ def main():
     elif args.mode == 'test1':
         print('Unit Test - Load Data')
         a, b ,c = _get_buckets()
-        print(len(a), len(b), len(c))
+        print("len(a), len(b), len(c)".format(len(a), len(b), len(c)))
         test_data, train_data = _get_test_train_data()
         print("Length of test and train data", len(test_data), len(train_data))
     elif args.mode == 'test2':

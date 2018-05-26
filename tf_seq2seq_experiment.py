@@ -1,5 +1,7 @@
 import tensorflow as tf
+import numpy as np
 
+scope_name = 'words'
 def test_embed_sequence():
     '''
     embed_sequence is a initializer helper to covert your input sentence to embed_dim vectors
@@ -8,12 +10,14 @@ def test_embed_sequence():
     '''
     vocab = [{'garbage':1}, {'piles':2}, {'in':3}, {'the':4}, {'city':5}, {'is':6}, {'clogged':7}, {'with':8}, {'vehicles':9}]
     features = [[1,2,3,4,5], [5,6,7,8,8]]
+
     EMBEDDING_SIZE = 10
     features_embedded = tf.contrib.layers.embed_sequence(
         ids = features,
         vocab_size = len(vocab),
         embed_dim=EMBEDDING_SIZE,
-        scope='words')
+        scope=scope_name
+    )
 
     with tf.Session() as sess:
         sess.run(tf.global_variables_initializer())
@@ -43,5 +47,29 @@ def test_embed_sequence():
    -0.27514493 -0.11599892  0.16143757  0.55324274 -0.09431484]]]
 '''
 
+def test_read_embedding():
+    print("Test read embedding from former defined embedding matrix.")
+    features = [[1,2,3,4,5], [5,6,7,8,8]]
+    vocab = [{'garbage':1}, {'piles':2}, {'in':3}, {'the':4}, {'city':5}, {'is':6}, {'clogged':7}, {'with':8}, {'vehicles':9}]
+
+    EMBEDDING_SIZE = 10
+    features_embedded = tf.contrib.layers.embed_sequence(
+        ids = features,
+        vocab_size = len(vocab),
+        embed_dim=EMBEDDING_SIZE,
+        scope=scope_name,
+        reuse=True)
+
+    with tf.variable_scope(scope_name, reuse=True):
+        embedding_matrix = tf.get_variable(name='embeddings')
+    dec_input = [[1,2,3],[4,5,6]]
+    dec_embedded_input = tf.nn.embedding_lookup(embedding_matrix, dec_input)
+    with tf.Session() as sess:
+        sess.run(tf.global_variables_initializer())
+        _f_embedded, _embedded_input = sess.run([features_embedded, dec_embedded_input])
+        print(_f_embedded[0][0], _embedded_input)
+        assert np.array_equal(_f_embedded[0][0],_embedded_input[0][0])
+
 if __name__ == "__main__":
     test_embed_sequence()
+    test_read_embedding()

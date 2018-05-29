@@ -58,9 +58,13 @@ class model(object):
         self.dec_seq_length = 10
         self.dec_emb_size = 11
 
+        #hyper parameters
+        self.enc_size = self.dec_size = 5
+        #self.dec_size = 7
+
     def _placeholder(self):
-        self.enc_inputs = tf.placeholder(shape=[self.batch_size, self.enc_seq_length, self.enc_emb_size], dtype=tf.int32)
-        self.dec_inputs = tf.placeholder(shape=[self.batch_size, self.dec_seq_length, self.dec_emb_size], dtype=tf.int32)
+        self.enc_inputs = tf.placeholder(shape=[self.batch_size, self.enc_seq_length, self.enc_emb_size], dtype=tf.float32)
+        self.dec_inputs = tf.placeholder(shape=[self.batch_size, self.dec_seq_length, self.dec_emb_size], dtype=tf.float32)
 
     def build_feeddict(self, encoder_inputs, decoder_inputs=None):
         self.feeddict = {self.enc_inputs: encoder_inputs}
@@ -68,10 +72,22 @@ class model(object):
             self.feeddict[self.dec_inputs] = decoder_inputs
 
     def _encoder_layer(self):
-        pass
+        enc_cell = tf.nn.rnn_cell.GRUCell(num_units=self.enc_size)
+        enc_output, enc_state = tf.nn.dynamic_rnn(enc_cell, self.enc_inputs, dtype=tf.float32)
+        return enc_output, enc_state
 
-    def _decoder_layer(self):
-        pass
+    def _decoder_layer(self, init_state=None, reuse=None, predict=False):
+        '''
+        decoder layer, it take encoder finally state as initialize
+        Args:
+            init_state
+        Returns:
+        '''
+        if init_state is None:
+            init_state = tf.zeros(shape=[self.batch_size, self.enc_size])
+
+        dec_cell = tf.nn.rnn_cell.GRUCell(num_units=self.dec_size)
+
 
     def optimizer_op(self):
         pass
@@ -98,11 +114,13 @@ def test_basic_model():
     basic_model._placeholder()
     X, Y, Xoh, Yoh = load_data()
     basic_model.build_feeddict(Xoh, Yoh)
+    enc_output, _ = basic_model._encoder_layer()
 
     with tf.Session() as sess:
         sess.run(tf.global_variables_initializer())
-        _enc, _dec = sess.run([basic_model.enc_inputs, basic_model.dec_inputs], feed_dict=basic_model.feeddict)
+        _enc, _dec, _enc_output = sess.run([basic_model.enc_inputs, basic_model.dec_inputs, enc_output], feed_dict=basic_model.feeddict)
         print("encoder inputs shape {}, decoder inputs shape {}".format(_enc.shape, _dec.shape))
+        print("encoder one step output[-1].shape {}".format(_enc_output[-1].shape))
 
 if __name__ == "__main__":
     #test_load_data()

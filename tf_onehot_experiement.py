@@ -19,6 +19,10 @@ After expand shape=(5, 1), values are [[-1.64261639]
  [ 0.76668751]
  [ 0.5099209 ]]
 '''
+
+def test_tf_ones():
+    return 5 * tf.ones(shape=[2,3], dtype=tf.float32)
+
 if __name__=="__main__":
     o_h = test_onehot()
     ob_h = test_onehot_boolean()
@@ -44,3 +48,7 @@ if __name__=="__main__":
         _b, _a = sess.run([b, a])
         print("Before expand shape={}, values are {}".format(_b.shape, _b))
         print("After expand shape={}, values are {}".format(_a.shape, _a))
+
+        v = test_tf_ones()
+        _v = sess.run(v)
+        print(_v)

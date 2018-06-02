@@ -269,9 +269,20 @@ def test_get_batch_data():
     print("And decoder_inputs, mask_inputs are similar. Both has shape [decoder_size, batchsize].")
     assert len(encoder_inputs_bucket[0]) == len(encoder_inputs[0]), "bucket batch size {} should matches normal batch size {}".format(len(encoder_inputs_bucket[0]), len(encoder_inputs[0]))
 
+def test_feed_batch_training_data():
+    not_use_test_data, train_data = _get_test_train_data()
+    enc_inputs, dec_inputs, dec_masks = data.get_batch_normal(train_data, config.BATCH_SIZE)
+    _model = ChatBotModel(True, batch_size=config.BATCH_SIZE)
+    _model._create_placeholders()
+    print("encoder[0], decoder[0], decoder_mask[0] shapes {} {} {}".format(enc_inputs[0].shape, dec_inputs[0].shape, dec_masks[0].shape))
+    with tf.Session() as sess:
+        sess.run(tf.global_variables_initializer())
+        _encoder = sess.run(_model.encoder_input, feed_dict={_model.encoder_input:enc_inputs[0]})
+        print("encoder.shape={}".format(_encoder.shape))
+
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--mode', choices={'train', 'chat', 'test1', 'test2', 'test3'},
+    parser.add_argument('--mode', choices={'train', 'chat', 'test1', 'test2', 'test3', 'test4'},
                         default='train', help="mode. if not specified, it's in the train mode")
     args = parser.parse_args()
 
@@ -298,6 +309,9 @@ def main():
     elif args.mode == 'test3':
         print('Unit Test - Get Batch Data')
         test_get_batch_data()
+    elif args.mode == 'test4':
+        print('Unit Test - test_feed_batch_training_data')
+        test_feed_batch_training_data()
 
 if __name__ == '__main__':
     main()
